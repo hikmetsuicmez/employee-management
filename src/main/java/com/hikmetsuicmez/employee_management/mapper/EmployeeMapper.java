@@ -2,17 +2,33 @@ package com.hikmetsuicmez.employee_management.mapper;
 
 import com.hikmetsuicmez.employee_management.dto.EmployeeDTO;
 import com.hikmetsuicmez.employee_management.entity.Employee;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import com.hikmetsuicmez.employee_management.repository.DepartmentRepository;
+import org.springframework.context.annotation.Configuration;
 
-@Mapper(componentModel = "spring")
-public interface EmployeeMapper {
+@Configuration
+public class EmployeeMapper {
 
+    private final DepartmentRepository departmentRepository;
 
-    @Mapping(source = "employee.id", target = "id")
-    Employee toEmployee(EmployeeDTO employeeDTO);
+    public EmployeeMapper(DepartmentRepository departmentRepository) {
+        this.departmentRepository = departmentRepository;
+    }
 
-    @Mapping(source = "employee.id", target = "id")
-    EmployeeDTO toEmployeeDTO(Employee employee);
+    public Employee toEmployee(EmployeeDTO employeeDTO) {
+        return Employee.builder()
+                .firstName(employeeDTO.getFirstName())
+                .lastName(employeeDTO.getLastName())
+                .email(employeeDTO.getEmail())
+                .department(departmentRepository.findById(employeeDTO.getDepartmentId()).orElse(null))
+                .build();
+    }
 
+    public EmployeeDTO toEmployeeDTO(Employee employee) {
+            return  EmployeeDTO.builder()
+                .firstName(employee.getFirstName())
+                .lastName(employee.getLastName())
+                .email(employee.getEmail())
+                .departmentId(employee.getDepartment().getId())
+                .build();
+    }
 }

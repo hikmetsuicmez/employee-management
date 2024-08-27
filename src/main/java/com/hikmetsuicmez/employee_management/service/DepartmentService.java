@@ -4,18 +4,21 @@ import com.hikmetsuicmez.employee_management.dto.DepartmentDTO;
 import com.hikmetsuicmez.employee_management.entity.Department;
 import com.hikmetsuicmez.employee_management.mapper.DepartmentMapper;
 import com.hikmetsuicmez.employee_management.repository.DepartmentRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
+
+    public DepartmentService(DepartmentRepository departmentRepository, DepartmentMapper departmentMapper) {
+        this.departmentRepository = departmentRepository;
+        this.departmentMapper = departmentMapper;
+    }
 
     public List<DepartmentDTO> getAllDepartments() {
         List<Department> departments = departmentRepository.findAll();

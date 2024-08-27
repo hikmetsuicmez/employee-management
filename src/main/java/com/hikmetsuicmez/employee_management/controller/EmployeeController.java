@@ -1,8 +1,13 @@
 package com.hikmetsuicmez.employee_management.controller;
 
+import com.hikmetsuicmez.employee_management.dto.EmployeeDTO;
+import com.hikmetsuicmez.employee_management.entity.Department;
 import com.hikmetsuicmez.employee_management.entity.Employee;
+import com.hikmetsuicmez.employee_management.service.DepartmentService;
 import com.hikmetsuicmez.employee_management.service.EmployeeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +20,8 @@ import java.util.Optional;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final DepartmentService departmentService;
+    private ResponseEntity<Employee> ok;
 
     @GetMapping
     public List<Employee> getAllEmployees() {
@@ -29,8 +36,23 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-        return ResponseEntity.ok(employeeService.saveEmployee(employee));
+    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+        // DTO'dan POJO'ya dönüştürme
+        Employee employee = new Employee();
+        employee.setFirstName(employeeDTO.getFirstName());
+        employee.setLastName(employeeDTO.getLastName());
+        employee.setEmail(employeeDTO.getEmail());
+
+        // Department ilişkisini ayarlama
+        Optional<Department> department = departmentService.getDepartmentById(employeeDTO.getDepartmentId());
+        if (department.isPresent()) {
+            employee.setDepartment(department.get());
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Employee savedEmployee = employeeService.saveEmployee(employee);
+        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

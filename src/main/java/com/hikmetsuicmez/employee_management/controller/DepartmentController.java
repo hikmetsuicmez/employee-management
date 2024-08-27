@@ -1,5 +1,6 @@
 package com.hikmetsuicmez.employee_management.controller;
 
+import com.hikmetsuicmez.employee_management.dto.DepartmentDTO;
 import com.hikmetsuicmez.employee_management.entity.Department;
 import com.hikmetsuicmez.employee_management.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,12 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public Department createDepartment(@RequestBody Department department) {
-        return departmentService.createDepartment(department);
+    public ResponseEntity<Department> createDepartment(@RequestBody DepartmentDTO departmentDTO) {
+        Department department = new Department();
+        department.setName(departmentDTO.getName());
+
+        Department savedDepartment = departmentService.createDepartment(department);
+        return ResponseEntity.ok(savedDepartment);
     }
 
     @PutMapping("/{id}")

@@ -1,6 +1,8 @@
 package com.hikmetsuicmez.employee_management.service;
 
+import com.hikmetsuicmez.employee_management.dto.DepartmentDTO;
 import com.hikmetsuicmez.employee_management.entity.Department;
+import com.hikmetsuicmez.employee_management.mapper.DepartmentMapper;
 import com.hikmetsuicmez.employee_management.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,17 +15,23 @@ import java.util.Optional;
 public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final DepartmentMapper departmentMapper;
 
-    public List<Department> getAllDepartments() {
-        return departmentRepository.findAll();
+    public List<DepartmentDTO> getAllDepartments() {
+        List<Department> departments = departmentRepository.findAll();
+        return departments.stream().map(departmentMapper::toDepartmentDTO)
+                .toList();
     }
 
-    public Optional<Department> getDepartmentById(Long id) {
-        return departmentRepository.findById(id);
+    public Optional<DepartmentDTO> getDepartmentById(Long id) {
+        return departmentRepository.findById(id).map(departmentMapper::toDepartmentDTO);
     }
 
-    public Department createDepartment(Department department) {
-        return departmentRepository.save(department);
+    public DepartmentDTO createDepartment(DepartmentDTO departmentDTO) {
+        Department department = departmentMapper.toDepartment(departmentDTO);
+        departmentRepository.save(department);
+        return departmentMapper.toDepartmentDTO(department);
+
     }
 
     public void deleteDepartment(Long id) {

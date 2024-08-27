@@ -2,10 +2,12 @@ package com.hikmetsuicmez.employee_management.service;
 
 import com.hikmetsuicmez.employee_management.dto.EmployeeDTO;
 import com.hikmetsuicmez.employee_management.entity.Employee;
+import com.hikmetsuicmez.employee_management.mapper.EmployeeMapper;
 import com.hikmetsuicmez.employee_management.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,17 +16,22 @@ import java.util.Optional;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final EmployeeMapper employeeMapper;
 
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<EmployeeDTO> getAllEmployees() {
+        List<Employee> employees = employeeRepository.findAll();
+        return employees.stream().map(employeeMapper::toEmployeeDTO)
+                .toList();
     }
 
-    public Optional<Employee> getEmployeeById(Long id) {
-        return employeeRepository.findById(id);
+    public Optional<EmployeeDTO> getEmployeeById(Long id) {
+        return employeeRepository.findById(id).map(employeeMapper::toEmployeeDTO);
     }
 
-    public Employee saveEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+    public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
+        Employee employee = employeeMapper.toEmployee(employeeDTO);
+        employeeRepository.save(employee);
+        return employeeMapper.toEmployeeDTO(employee);
     }
 
     public void deleteEmployee(Long id) {

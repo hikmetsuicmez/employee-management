@@ -1,7 +1,6 @@
 package com.hikmetsuicmez.employee_management.controller;
 
 import com.hikmetsuicmez.employee_management.dto.EmployeeDTO;
-import com.hikmetsuicmez.employee_management.entity.Department;
 import com.hikmetsuicmez.employee_management.entity.Employee;
 import com.hikmetsuicmez.employee_management.service.DepartmentService;
 import com.hikmetsuicmez.employee_management.service.EmployeeService;
@@ -24,47 +23,33 @@ public class EmployeeController {
     private ResponseEntity<Employee> ok;
 
     @GetMapping
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployees() {
+        return ResponseEntity.ok(employeeService.getAllEmployees());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
-        Optional<Employee> employee = employeeService.getEmployeeById(id);
+    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable Long id) {
+        Optional<EmployeeDTO> employee = employeeService.getEmployeeById(id);
         return employee.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
-        // DTO'dan POJO'ya dönüştürme
-        Employee employee = new Employee();
-        employee.setFirstName(employeeDTO.getFirstName());
-        employee.setLastName(employeeDTO.getLastName());
-        employee.setEmail(employeeDTO.getEmail());
-
-        // Department ilişkisini ayarlama
-        Optional<Department> department = departmentService.getDepartmentById(employeeDTO.getDepartmentId());
-        if (department.isPresent()) {
-            employee.setDepartment(department.get());
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Employee savedEmployee = employeeService.saveEmployee(employee);
+    public ResponseEntity<EmployeeDTO> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
+        EmployeeDTO savedEmployee = employeeService.saveEmployee(employeeDTO);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
-        Optional<Employee> optionalEmployee = employeeService.getEmployeeById(id);
+    public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employeeDetails) {
+        Optional<EmployeeDTO> optionalEmployee = employeeService.getEmployeeById(id);
         if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
+            EmployeeDTO employee = optionalEmployee.get();
             employee.setFirstName(employeeDetails.getFirstName());
             employee.setLastName(employeeDetails.getLastName());
             employee.setEmail(employeeDetails.getEmail());
-            employee.setDepartment(employeeDetails.getDepartment());
-            final Employee updatedEmployee = employeeService.saveEmployee(employee);
+            employee.setDepartmentId(employeeDetails.getDepartmentId());
+            final EmployeeDTO updatedEmployee = employeeService.saveEmployee(employee);
             return ResponseEntity.ok(updatedEmployee);
         } else {
             return ResponseEntity.notFound().build();
